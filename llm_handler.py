@@ -59,7 +59,8 @@ class OfflineLLM:
                     "temperature": 0.7,
                     "top_p": 0.9,
                     "max_tokens": 2048,
-                    "stop": ["Human:", "Assistant:"]
+                    # Stop generating when the user prompt label appears to allow full assistant responses
+                    "stop": ["User:"]
                 }
             }
               # Make request to Ollama
