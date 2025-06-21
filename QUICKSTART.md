@@ -21,7 +21,7 @@ pip install -r requirements.txt
 curl -fsSL https://ollama.ai/install.sh | sh
 
 # Download a model
-ollama pull llama2
+ollama pull llama3.1:8b
 ```
 
 ## Step 3: Start the Application
