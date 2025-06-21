@@ -44,6 +44,12 @@ class OfflineLLM:
             # Build the enhanced prompt with context
             enhanced_prompt = self._build_context_prompt(prompt, context_docs)
             
+            # Debug logging
+            logger.info(f"Context docs provided: {context_docs is not None}")
+            logger.info(f"Number of context docs: {len(context_docs) if context_docs else 0}")
+            if not context_docs:
+                logger.info("Using GENERAL CHAT mode - no documents")
+            
             # Prepare request payload
             payload = {
                 "model": self.model,
@@ -56,8 +62,7 @@ class OfflineLLM:
                     "stop": ["Human:", "Assistant:"]
                 }
             }
-            
-            # Make request to Ollama
+              # Make request to Ollama
             response = requests.post(
                 f"{self.base_url}/api/generate",
                 json=payload,
@@ -86,7 +91,8 @@ class OfflineLLM:
             logger.error("LLM request timed out")
             return {
                 "success": False,
-                "error": "Request timed out",                "response": "Sorry, the request took too long to process. Please try again."
+                "error": "Request timed out",
+                "response": "Sorry, the request took too long to process. Please try again."
             }
         except Exception as e:
             logger.error(f"Error generating LLM response: {e}")
@@ -100,35 +106,12 @@ class OfflineLLM:
         """Build an enhanced prompt with relevant document context."""
         
         if not context_docs:
-            # General Chat Mode - No documents provided
-            return f"""You are a friendly, helpful, and engaging AI assistant. Your personality is warm, conversational, and enthusiastic about helping users. Here's how you should behave:
-
-PERSONALITY TRAITS:
-- Be genuinely curious and interested in what the user is asking
-- Use a warm, conversational tone - like talking to a knowledgeable friend
-- Show enthusiasm when appropriate (use phrases like "That's a great question!" or "I'd be happy to help!")
-- Be encouraging and supportive
-- Use natural language and avoid being too formal or robotic
-
-CONVERSATION STYLE:
-- Always acknowledge the user's question directly
-- Provide clear, helpful answers with examples when useful
-- Ask follow-up questions to better understand their needs
-- Offer additional related information that might be helpful
-- If you don't know something, admit it honestly but offer to help find related information
-
-CAPABILITIES:
-- Answering questions on any topic with enthusiasm
-- Explaining complex concepts in simple, relatable terms
-- Helping with coding, writing, analysis, and creative tasks
-- Providing step-by-step guidance when needed
-- Engaging in meaningful conversations
-
-Remember: Be human-like in your responses - friendly, helpful, and genuinely interested in assisting!
-
-User: {user_query}
-
-Answer:"""
+            # General Chat Mode - No documents provided, simple conversational prompt
+            system_prompt = (
+                "You are a helpful and friendly AI assistant."
+                " Engage naturally and answer the user's questions conversationally."
+            )
+            return f"{system_prompt}\nUser: {user_query}\nAssistant:"
         else:
             # Document Chat Mode - Context provided
             system_prompt = """You are a knowledgeable and friendly AI assistant that specializes in answering questions based on provided documents. Your approach should be:

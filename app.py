@@ -113,31 +113,34 @@ class ChatbotApp:
             
             st.markdown("---")
             
-            # Document upload
-            st.subheader("📄 Upload Documents")
-            st.caption("For Document Chat mode only")
-            uploaded_files = st.file_uploader(
-                "Choose files to process",
-                accept_multiple_files=True,
-                type=['pdf', 'docx', 'txt'],
-                help="Upload PDF, DOCX, or TXT files for document-based chat"
-            )
-            
-            if uploaded_files:
-                self.handle_file_upload(uploaded_files)
-            
-            st.markdown("---")
-            
-            # Database statistics
-            st.subheader("📊 Database Stats")
-            self.show_database_stats()
-            
-            st.markdown("---")
-            
-            # Management actions
-            st.subheader("⚙️ Management")
-            if st.button("🗑️ Clear All Documents", help="Remove all processed documents"):
-                self.clear_documents()
+            # Document chat controls only for Document Chat mode
+            if st.session_state.current_chat_mode == "📄 Document Chat":
+                # Document upload
+                st.subheader("📄 Upload Documents")
+                st.caption("For Document Chat mode only")
+                uploaded_files = st.file_uploader(
+                    "Choose files to process",
+                    accept_multiple_files=True,
+                    type=['pdf', 'docx', 'txt'],
+                    help="Upload PDF, DOCX, or TXT files for document-based chat"
+                )
+                if uploaded_files:
+                    self.handle_file_upload(uploaded_files)
+
+                st.markdown("---")
+
+                # Database statistics
+                st.subheader("📊 Database Stats")
+                self.show_database_stats()
+
+                st.markdown("---")
+
+                # Management actions
+                st.subheader("⚙️ Management")
+                if st.button("🗑️ Clear All Documents", help="Remove all processed documents"):
+                    self.clear_documents()
+            else:
+                st.info("📄 Switch to 'Document Chat' mode in the main view to manage your documents.")
     
     def show_system_status(self):
         """Display system status information."""
