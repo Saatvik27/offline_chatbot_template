@@ -1,0 +1,26 @@
+[
+  {
+    "instruction": "What is our company remote work policy?",
+    "response": "Our company supports flexible remote work arrangements. Employees can work from home full-time or choose a hybrid schedule. Weekly team check-ins are mandatory, and all remote workers must maintain regular communication with their managers."
+  },
+  {
+    "instruction": "How do I submit vacation requests?",
+    "response": "Vacation requests should be submitted through the HR portal at least 2 weeks in advance. Requests longer than 5 consecutive days require manager approval. Emergency time off can be requested with 24-hour notice when possible."
+  },
+  {
+    "instruction": "What are our security protocols for remote work?",
+    "response": "All remote employees must: 1) Use company VPN for all work-related activities, 2) Enable two-factor authentication on all company accounts, 3) Use encrypted storage for sensitive documents, 4) Follow the clean desk policy even at home, 5) Report any security incidents immediately to IT."
+  },
+  {
+    "instruction": "What is the process for expense reimbursement?",
+    "response": "Submit expense reports within 30 days using the company expense app. Include original receipts for amounts over $25. Pre-approval is required for expenses over $500. Reimbursements are processed within 5-7 business days after approval."
+  },
+  {
+    "instruction": "How do I access company resources while working remotely?",
+    "response": "Connect to the company VPN first, then access resources through the employee portal. Use your company credentials to log into applications. For technical issues, contact IT support through the helpdesk portal or call the support hotline."
+  },
+  {
+    "instruction": "What is our meeting policy?",
+    "response": "All meetings should have a clear agenda shared 24 hours in advance. Default meeting length is 30 minutes unless more time is specifically needed. Meetings with 3+ people require calendar invites. Record important decisions in meeting notes shared with attendees."
+  }
+]
