@@ -37,8 +37,7 @@ class OfflineLLM:
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to connect to Ollama: {e}")
             return False
-    
-    def generate_response(self, prompt: str, context_docs: Optional[List[Dict]] = None) -> Dict[str, Any]:
+      def generate_response(self, prompt: str, context_docs: Optional[List[Dict]] = None) -> Dict[str, Any]:
         """Generate response using local LLM with optional context."""
         try:
             # Build the enhanced prompt with context
@@ -50,7 +49,7 @@ class OfflineLLM:
             if not context_docs:
                 logger.info("Using GENERAL CHAT mode - no documents")
             
-            # Prepare request payload with optimized settings for speed
+            # Prepare request payload
             payload = {
                 "model": self.model,
                 "prompt": enhanced_prompt,
@@ -58,29 +57,17 @@ class OfflineLLM:
                 "options": {
                     "temperature": 0.7,
                     "top_p": 0.9,
-                    "num_predict": 256,  # Reduced for faster responses
+                    "num_predict": 512,  # Limit response length for faster generation
                     "num_ctx": 2048,     # Context window
-                    "stop": ["User:", "Human:"],
-                    "repeat_penalty": 1.1,
-                    "seed": -1,
-                    "tfs_z": 1.0,
-                    "num_keep": 0,
-                    "typical_p": 1.0,
-                    "presence_penalty": 0.0,
-                    "frequency_penalty": 0.0,
-                    "mirostat": 0,
-                    "mirostat_tau": 5.0,
-                    "mirostat_eta": 0.1,
-                    "penalize_newline": True,
-                    "numa": False
+                    "stop": ["User:", "Human:"]
                 }
             }
             
-            # Make request to Ollama with reduced timeout for faster responses
+            # Make request to Ollama
             response = requests.post(
                 f"{self.base_url}/api/generate",
                 json=payload,
-                timeout=30  # Reduced from 60 seconds
+                timeout=60
             )
             
             if response.status_code == 200:
@@ -120,19 +107,50 @@ class OfflineLLM:
         """Build an enhanced prompt with relevant document context."""
         
         if not context_docs:
-            # General Chat Mode - Simple and fast prompt
-            return f"You are a helpful AI assistant. Answer concisely.\n\nUser: {user_query}\nAssistant:"
+            # General Chat Mode - No documents provided, simple conversational prompt
+            system_prompt = (
+                "You are a helpful and friendly AI assistant."
+                " Engage naturally and answer the user's questions conversationally."
+            )
+            return f"{system_prompt}\nUser: {user_query}\nAssistant:"
         else:
             # Document Chat Mode - Context provided
-            system_prompt = "You are an AI assistant that answers questions based on provided documents. Be concise and reference the documents when relevant."
+            system_prompt = """You are a knowledgeable and friendly AI assistant that specializes in answering questions based on provided documents. Your approach should be:
+
+DOCUMENT-BASED RESPONSES:
+- Always prioritize information from the provided documents
+- Be enthusiastic about sharing knowledge from the documents
+- Clearly reference which document you're drawing information from
+- If information is incomplete, acknowledge it and suggest what additional context might help
+
+COMMUNICATION STYLE:
+- Be warm and conversational while remaining accurate
+- Use phrases like "Based on the documents provided..." or "According to the information I found..."
+- If you need to go beyond the documents, clearly state when you're doing so
+- Be helpful in explaining complex information from the documents in simple terms
+
+Remember: Your primary job is to be a friendly bridge between the user and the document content!"""
             
-            # Build context from retrieved documents (limit for speed)
-            context_text = "\n\nRelevant information:\n"
-            for i, doc in enumerate(context_docs[:3], 1):  # Limit to top 3 for speed
-                content = doc.get("content", "")[:500]  # Truncate for speed
-                context_text += f"{i}. {content}\n"
+            # Build context from retrieved documents
+            context_text = "\n\n--- RELEVANT DOCUMENTS ---\n"
+            for i, doc in enumerate(context_docs, 1):
+                source = doc.get("metadata", {}).get("source", "Unknown")
+                content = doc.get("content", "")
+                similarity = doc.get("similarity_score", 0)
+                
+                context_text += f"\nDocument {i} (Source: {source}, Relevance: {similarity:.2f}):\n{content}\n"
             
-            return f"{system_prompt}\n{context_text}\nUser Question: {user_query}\nAssistant:"
+            context_text += "\n--- END OF DOCUMENTS ---\n"
+            
+            return f"""{system_prompt}
+
+{context_text}
+
+User Question: {user_query}
+
+Please answer the question based on the provided documents. Be friendly and conversational in your response. If the documents don't contain sufficient information to answer the question, please state that clearly and explain what information is missing.
+
+Answer:"""
     
     def check_model_availability(self) -> Dict[str, Any]:
         """Check available models and current model status."""
@@ -194,8 +212,8 @@ class OfflineLLM:
                     ]
                 }
             
-            # Test model response with a simple query
-            test_response = self.generate_response("Hello")
+            # Test model response
+            test_response = self.generate_response("Hello, please respond with 'OK' if you can hear me.")
             
             return {
                 "success": test_response["success"],

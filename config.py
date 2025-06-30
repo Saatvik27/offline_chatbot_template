@@ -7,10 +7,16 @@ class Config:
     # Database settings
     CHROMA_DB_PATH = "./chroma_db"
     COLLECTION_NAME = "document_embeddings"
-      # Model settings
+    
+    # Model settings
     EMBEDDING_MODEL = "all-MiniLM-L6-v2"
     LLM_MODEL = "llama3.1:8b"  # Best model for document Q&A
     OLLAMA_BASE_URL = "http://localhost:11434"
+    
+    # API settings
+    API_HOST = "0.0.0.0"
+    API_PORT = 8000
+    API_RELOAD = True
     
     # Document processing
     CHUNK_SIZE = 1000
